@@ -8,6 +8,7 @@ import "@openzeppelin/contracts@4.7.3/utils/Counters.sol";
 
 contract Newark is ERC721, ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
+    mapping (address => uint8) countsByAddress;
     uint256 MAX_SUPPLY = 100000;
     Counters.Counter private _tokenIdCounter;
 
@@ -15,9 +16,11 @@ contract Newark is ERC721, ERC721Enumerable, ERC721URIStorage {
 
     function safeMint(address to, string memory uri) public {
         uint256 tokenId = _tokenIdCounter.current();
+        uint8 userMintCount = countsByAddress[to];
         require(_tokenIdCounter.current() <= MAX_SUPPLY, "I'm sorry we reached the cap");
-        require(balanceOf(to) < 0, "Max Mint per wallet reached");
+        require(userMintCount < 5, "Max Mint per wallet reached");
         _tokenIdCounter.increment();
+        countsByAddress[to] = userMintCount + 1;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
